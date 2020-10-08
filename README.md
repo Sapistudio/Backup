@@ -1,4 +1,4 @@
-# Fork & adapttion after
+# Fork & adaptation after
 (https://github.com/spatie/laravel-backup)
 
 ## Credits
