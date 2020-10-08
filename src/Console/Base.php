@@ -3,7 +3,10 @@ namespace SapiStudio\Backup\Console;
 
 use Symfony\Component\Console\Application;
 use Symfony\Component\Console\Command\Command;
+use Symfony\Component\Console\Helper\ProgressBar;
+use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\FormatterHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
@@ -15,10 +18,12 @@ class Base extends Command
     protected static $defaultName = 'base';
     protected static $input;
     protected static $output;
+    protected static $progressBar;
+    protected static $formatter;
     
     public static function createApp(){
-        $command            = new static();
-        $application  = new Application();
+        $command        = new static();
+        $application    = new Application();
         $application->add($command);
         $application->setDefaultCommand($command->getName());
         $application->setAutoExit(false);
@@ -28,8 +33,20 @@ class Base extends Command
     
     protected function execute(InputInterface $input, OutputInterface $output)
     {
+        self::$formatter = $this->getHelper('formatter');
         self::$input    = $input;
         self::$output   = $output;
+    }
+    
+    public function startProgressBar($total = 100){
+        self::$progressBar = new ProgressBar(self::$output, $total);
+        self::$progressBar->setFormat("%message%\n%current%/%max% [%bar%] %percent:3s%% \n");
+        self::$progressBar->start();
+    }
+    
+    public function updateProgressBar($message = null){
+        self::$progressBar->advance(1);
+        self::$progressBar->setMessage(self::$formatter->truncate($message, 50));
     }
     
     public function outputTable($rows)
