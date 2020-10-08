@@ -43,11 +43,11 @@ class BackupJobs
         if (!$this->backupDestination || !is_dir($this->backupDestination))
             throw new Exception('A backup job cannot run without a destination to backup to!'.$this->backupDestination);
         try{
-            $this->consoleOutput->comment('Starting backup...');
+            consoleOutput()->comment('Starting backup...');
             $zip = Zip::create(rtrim($this->backupDestination,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->filename)->add($this->getSelectedFiles());
-            $this->consoleOutput->comment('Backup completed!');
+            consoleOutput()->comment('Backup completed!');
         }catch (Exception $exception) {
-            $this->consoleOutput->error("Backup failed because: {$exception->getMessage()}.");
+            consoleOutput()->error("Backup failed because: {$exception->getMessage()}.");
         }
     }
     
@@ -72,7 +72,10 @@ class BackupJobs
         }
         foreach ($this->includedFiles() as $includedFile)
             $this->filesManifest[] = $includedFile;
-        foreach ($finder->in($this->includedDirectories())->getIterator() as $file) {
+        $files = $finder->in($this->includedDirectories())->getIterator();
+        consoleOutput()->startProgressBar(iterator_count($files));
+        foreach ($files as $file) {
+            consoleOutput()->updateProgressBar($file->getPathname());
             if ($this->shouldExclude($file))
                 continue;
             $this->filesManifest[] = $file->getPathname();
