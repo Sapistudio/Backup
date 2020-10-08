@@ -32,7 +32,6 @@ class BackupCleanup
     public function setupCleanupConfig($configData = []){
         $configData             = (!is_array($configData)) ? [] : $configData;
         $this->cleanupConfig    = array_merge($this->cleanupConfig,$configData);
-        print_R($this->cleanupConfig);die();
         return $this;
     }
     
