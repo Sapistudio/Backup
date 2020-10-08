@@ -4,7 +4,7 @@ namespace SapiStudio\Backup\Helpers;
 use Exception;
 use Illuminate\Filesystem\Filesystem;
 use Symfony\Component\Finder\Finder;
-use \Illuminate\Support\Str;
+use Illuminate\Support\Str;
 use Illuminate\Support\Collection;
 
 class BackupJobs
@@ -33,13 +33,14 @@ class BackupJobs
     /** BackupJobs::__construct()*/
     protected static function loadConsoleOutput(){
         if(!self::$consoleOutput)
-            self::$consoleOutput = \SapiStudio\Backup\Console\Base::createApp();
+            self::$consoleOutput = \SapiStudio\Backup\Console\Base::createConsole();
         return self::$consoleOutput;
     }
     
     /** BackupJobs::runBackup()*/
     protected function runBackup()
     {
+        $this->onlyCliAllowed();
         if (!$this->backupDestination || !is_dir($this->backupDestination))
             throw new Exception('A backup job cannot run without a destination to backup to!'.$this->backupDestination);
         try{
@@ -75,7 +76,7 @@ class BackupJobs
         $files = $finder->in($this->includedDirectories())->getIterator();
         consoleOutput()->startProgressBar(iterator_count($files));
         foreach ($files as $file) {
-            consoleOutput()->updateProgressBar($file->getPathname());
+            consoleOutput()->updateProgressBar('Reading file: '.$file->getPathname());
             if ($this->shouldExclude($file))
                 continue;
             $this->filesManifest[] = $file->getPathname();
@@ -145,7 +146,6 @@ class BackupJobs
             }
             $keys[] = trim($value,DIRECTORY_SEPARATOR);
         });
-        
         $this->filesManifest = array_combine($keys, $this->filesManifest);
         return $this->filesManifest;
     }
@@ -158,5 +158,11 @@ class BackupJobs
             ->flatMap(function ($path)  {return glob($path);})
             ->map(function ($path)      {return realpath($path);})
             ->reject(function ($path)   {return $path === false;});
+    }
+    
+    /** BackupJobs::onlyCliAllowed()*/
+    protected function onlyCliAllowed(){
+        if((php_sapi_name() !== 'cli'))
+            throw new Exception('Backup must run only from cli');
     }
 }
