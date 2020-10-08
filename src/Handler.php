@@ -63,10 +63,10 @@ class Handler extends Helpers\BackupJobs
     }
     
     /** Handler::cleanupBackups()*/
-    public function cleanupBackups()
+    public function cleanupBackups($cleanupConfig = [])
     {
         $this->onlyCliAllowed();
-        $deleteBackups = (new Helpers\BackupCleanup)->deleteOldBackups($this->getBackups());
+        $deleteBackups = Helpers\BackupCleanup::make($this->getBackups())->setupCleanupConfig($cleanupConfig)->deleteOldBackups();
         if($deleteBackups){
             consoleOutput()->question('following backups were deleted');
             consoleOutput()->outputTable($deleteBackups);
