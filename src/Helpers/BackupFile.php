@@ -49,6 +49,6 @@ class BackupFile
     /** BackupFile::delete()*/
     public function delete()
     {
-        $this->disk->delete($this->path);
+        return $this->disk->delete($this->path);
     }
 }
