@@ -60,7 +60,7 @@ class Handler extends Helpers\BackupJobs
     public function listBackups()
     {
         $data = ['backupFiles' => $this->getBackups()->convertToList(),'totalBackups' => $this->getAmountOfBackups(),'usedStorage' => $this->getUsedStorage()];
-        return (php_sapi_name() == 'cli') ? \consoleOutput()->outputTable($data['backupFiles']) : $data;
+        return (php_sapi_name() == 'cli') ? consoleOutput()->outputTable($data['backupFiles']) : $data;
     }
     
     /** Handler::getUsedStorage()*/
