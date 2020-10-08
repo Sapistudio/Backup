@@ -56,11 +56,30 @@ class Handler extends Helpers\BackupJobs
         return $this;
     }
     
+    /** Handler::createBackup()*/
+    public function createBackup()
+    {
+        return $this->runBackup();
+    }
+    
+    /** Handler::cleanupBackups()*/
+    public function cleanupBackups()
+    {
+        $this->onlyCliAllowed();
+        $deleteBackups = (new Helpers\BackupCleanup)->deleteOldBackups($this->getBackups());
+        if($deleteBackups){
+            consoleOutput()->question('following backups were deleted');
+            consoleOutput()->outputTable($deleteBackups);
+        }else{
+            consoleOutput()->error('no old backup was found');
+        }
+    }
+    
     /** Handler::listBackups()*/
     public function listBackups()
     {
         $data = ['backupFiles' => $this->getBackups()->convertToList(),'totalBackups' => $this->getAmountOfBackups(),'usedStorage' => $this->getUsedStorage()];
-        return (php_sapi_name() == 'cli') ? consoleOutput()->outputTable($data['backupFiles']) : $data;
+        return (php_sapi_name() === 'cli') ? consoleOutput()->outputTable($data['backupFiles']) : $data;
     }
     
     /** Handler::getUsedStorage()*/
@@ -86,17 +105,5 @@ class Handler extends Helpers\BackupJobs
     public function getAmountOfBackups()
     {
         return $this->getBackups()->count();
-    }
-    
-    /** Handler::cleanupBackups()*/
-    public function cleanupBackups()
-    {
-        return (new Helpers\BackupCleanup)->deleteOldBackups($this->getBackups());
-    }
-    
-    /** Handler::createBackup()*/
-    public function createBackup()
-    {
-        return $this->runBackup();
     }
 }
