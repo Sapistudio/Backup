@@ -7,6 +7,7 @@ use Illuminate\Support\Collection;
 class BackupCleanup
 {
     protected $deletedBackups = null;
+    protected $currentBackups = null;
     protected $newestBackup;
     protected $cleanupConfig = [
         'numberOfBackupsPerPeriod'      => 0,/** The number of backups must be kept on period. */
@@ -16,14 +17,32 @@ class BackupCleanup
         'deleteOldestBackupsWhenUsingMoreMegabytesThan' => 5000,/** After cleaning up backups, remove the oldest backup until this number of megabytes has been reached.*/
     ];
     
-    /** BackupCleanup::deleteOldBackups()*/
-    public function deleteOldBackups(BackupCollection $backups)
-    {
-        // Don't ever delete the newest backup.
+    /** BackupCleanup::make()*/
+    public static function make(BackupCollection $backups){
+        return new static($backups);
+    }
+    
+    /** BackupCleanup::__construct()*/
+    public function __construct(BackupCollection $backups){
+        $this->currentBackups   = $backups;
         $this->deletedBackups   = new BackupCollection();
-        $this->newestBackup     = $backups->shift();
-        $dateRanges             = $this->calculateDateRanges();
-        $backupsPerPeriod       = $dateRanges->map(function (Period $period) use ($backups) {
+    }
+    
+    /** BackupCleanup::setupCleanupConfig()*/
+    public function setupCleanupConfig($configData = []){
+        $configData             = (!is_array($configData)) ? [] : $configData;
+        $this->cleanupConfig    = array_merge($this->cleanupConfig,$configData);
+        print_R($this->cleanupConfig);die();
+        return $this;
+    }
+    
+    /** BackupCleanup::deleteOldBackups()*/
+    public function deleteOldBackups()
+    {
+        $backups            = $this->currentBackups;
+        $this->newestBackup = $backups->shift();// Don't ever delete the newest backup.
+        $dateRanges         = $this->calculateDateRanges();
+        $backupsPerPeriod   = $dateRanges->map(function (Period $period) use ($backups) {
             return $backups->filter(function (BackupFile $backup) use ($period){
                 return $backup->date()->between($period->getStartDate(),$period->getEndDate());
             });
