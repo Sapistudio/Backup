@@ -1,7 +1,5 @@
-# A modern backup solution for Laravel apps
-
-[![Fork & adapttion after](https://github.com/spatie/laravel-backup)
-.
+# Fork & adapttion after
+(https://github.com/spatie/laravel-backup)
 
 ## Credits
 
