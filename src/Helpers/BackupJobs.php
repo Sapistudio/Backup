@@ -25,8 +25,8 @@ class BackupJobs
     {
         $this->setBackupDestination($backupDestination);
         $this->filename                     = date('Y-m-d-His').'.zip';/** default bk filename*/
-        $this->includeFilesAndDirectories   = new Collection();
-        $this->excludeFilesAndDirectories   = new Collection();
+        $this->includeFilesAndDirectories   = collect();
+        $this->excludeFilesAndDirectories   = collect();
         self::loadConsoleOutput();
     }
     
