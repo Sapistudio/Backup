@@ -9,7 +9,7 @@ $bkHandler = Handler::create('/tmp/backups');// set up your backup folder locati
 $bkHandler->setMaxFileSize(5)//maximum filesize in Mb to be added to backup,skip it will add all files
 ->setAllowedExtensions(['php'])//desired extensions to backup,skip it will add all files
 ->includeFilesFrom(['/'])//the main directory to backup
-->excludeFilesFrom(['/','/srv/www/storage/','/srv/www/images/','/srv/www/resources/'])//directories to ignore on backup
+->excludeFilesFrom(['/','/images/'])//directories to ignore on backup
 ;
 ```
 # Create backup
