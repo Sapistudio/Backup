@@ -43,6 +43,8 @@ class BackupJobs
         $this->onlyCliAllowed();
         if (!$this->backupDestination || !is_dir($this->backupDestination))
             throw new Exception('A backup job cannot run without a destination to backup to!'.$this->backupDestination);
+        if($this->includeFilesAndDirectories->isEmpty())
+            throw new Exception('A backup job cannot run without a destination to backup from!');
         try{
             consoleOutput()->comment('Starting backup...');
             $zip = Zip::create(rtrim($this->backupDestination,DIRECTORY_SEPARATOR).DIRECTORY_SEPARATOR.$this->filename)->add($this->getSelectedFiles());
@@ -74,7 +76,7 @@ class BackupJobs
         foreach ($this->includedFiles() as $includedFile)
             $this->filesManifest[] = $includedFile;
         $files = $finder->in($this->includedDirectories())->getIterator();
-        consoleOutput()->startProgressBar(iterator_count($files));
+        consoleOutput()->startProgressBar();
         foreach ($files as $file) {
             consoleOutput()->updateProgressBar('Reading file: '.$file->getPathname());
             if ($this->shouldExclude($file))
@@ -113,6 +115,12 @@ class BackupJobs
     {
         return $this->includeFilesAndDirectories->reject(function ($path){return is_file($path);})->toArray();
     }
+    
+    /** BackupJobs::excludeDirectories() */
+    protected function excludeDirectories()
+    {
+        return $this->excludeFilesAndDirectories->reject(function ($path){return is_file($path);})->toArray();
+    }        
 
     /** BackupJobs::shouldExclude()*/
     protected function shouldExclude($path)
@@ -155,6 +163,7 @@ class BackupJobs
     {
         return (new Collection($paths))
             ->reject(function ($path)   {return $path == '';})
+            ->filter(function ($path) {return is_dir($path);})
             ->flatMap(function ($path)  {return glob($path);})
             ->map(function ($path)      {return realpath($path);})
             ->reject(function ($path)   {return $path === false;});
