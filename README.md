@@ -8,8 +8,8 @@ use SapiStudio\Backup\Handler;
 $bkHandler = Handler::create('/tmp/backups');// set up your backup folder location
 $bkHandler->setMaxFileSize(5)//maximum filesize in Mb to be added to backup,skip it will add all files
 ->setAllowedExtensions(['php'])//desired extensions to backup,skip it will add all files
-->includeFilesFrom(['/'])//the main directory to backup
-->excludeFilesFrom(['/','/images/'])//directories to ignore on backup
+->includeFilesFrom(['/'])//the main directories to backup,as array . full path required
+->excludeFilesFrom(['/','/images/'])//directories to ignore on backup,as array. full path required
 ;
 ```
 # Create backup
