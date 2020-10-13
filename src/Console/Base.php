@@ -52,7 +52,13 @@ class Base extends Command
     /** Base::updateProgressBar()*/
     public function updateProgressBar($message = null){
         self::$progressBar->advance(1);
-        self::$progressBar->setMessage(self::$formatter->truncate($message, self::$lineLength));
+        $this->setMessageProgressBar($message);
+    }
+    
+    /** Base::setMessageProgressBar()*/
+    public function setMessageProgressBar($message = null){
+        if($message)
+            self::$progressBar->setMessage(self::$formatter->truncate($message, self::$lineLength));
     }
     
     /** Base::outputTable()*/
