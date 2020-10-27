@@ -7,14 +7,20 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Helper\ProgressBar;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Console\Helper\Table;
+use Symfony\Component\Console\Helper\HelperSet;
 use Symfony\Component\Console\Helper\FormatterHelper;
+use Symfony\Component\Console\Helper\DebugFormatterHelper;
+use Symfony\Component\Console\Helper\ProcessHelper;
+use Symfony\Component\Console\Helper\QuestionHelper;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Formatter\OutputFormatterStyle;
+use Symfony\Component\Console\Input\ArgvInput;
+use Symfony\Component\Console\Output\ConsoleOutput;
 
-class Base extends Command
+class Base
 {
     protected static $lineLength    = 100;
     protected static $defaultName   = 'base';
@@ -22,24 +28,15 @@ class Base extends Command
     protected static $output;
     protected static $progressBar;
     protected static $formatter;
+    protected static $helperSet     = null;
     
     /** Base::createConsole()*/
     public static function createConsole(){
-        $command        = new static();
-        $application    = new Application();
-        $application->add($command);
-        $application->setDefaultCommand($command->getName());
-        $application->setAutoExit(false);
-        $application->run();
+        self::$input        = new ArgvInput();
+        self::$output       = new ConsoleOutput();
+        self::$helperSet    = new HelperSet([new FormatterHelper(),new DebugFormatterHelper(),new ProcessHelper(),new QuestionHelper(),]);
+        self::$formatter    = self::$helperSet->get('formatter');
         return new static();
-    }
-    
-    /** Base::execute() */
-    protected function execute(InputInterface $input, OutputInterface $output)
-    {
-        self::$formatter = $this->getHelper('formatter');
-        self::$input    = $input;
-        self::$output   = $output;
     }
     
     /** Base::startProgressBar() */
